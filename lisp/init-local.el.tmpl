@@ -1,0 +1,182 @@
+;;; init-local.el  -*- mode: emacs-lisp; lexical-binding: t -*-
+
+;;; Code:
+
+;; =====================================================================
+;; APPEARANCE & UI
+;; =====================================================================
+
+;; Font configuration (matching Doom setup)
+(when (display-graphic-p)
+  (set-face-attribute 'default nil
+                      :font "Berkeley Mono Variable-18"
+                      :weight 'normal))
+
+;; Keycast - show keypresses at top of screen
+(use-package keycast
+  :ensure t
+  :config
+  (keycast-mode-line-mode))
+
+;; =====================================================================
+;; SYSTEM INTEGRATION
+;; =====================================================================
+
+;; Modifier keys (overrides Purcell defaults)
+(when (eq system-type 'darwin)
+  ;; Standard setup: Option=Meta, GUI/Cmd=Super
+  (setq mac-option-modifier 'meta
+        mac-right-option-modifier 'meta
+        mac-command-modifier 'super)
+
+  ;; Ensure it sticks after init (overrides Purcell defaults)
+  (add-hook 'after-init-hook
+            (lambda ()
+              (setq mac-option-modifier 'meta
+                    mac-right-option-modifier 'meta
+                    mac-command-modifier 'super))))
+
+;; Clipboard integration for terminal Emacs
+(use-package pbcopy
+  :ensure t
+  :config
+  (turn-on-pbcopy))
+
+;; Direnv integration - suppress environment diff messages
+(with-eval-after-load 'envrc
+  (setq envrc-debug nil)
+  (setq envrc-show-summary-in-minibuffer nil))
+
+;; =====================================================================
+;; DIRECTORIES & PATHS
+;; =====================================================================
+
+;; Directory settings (same as Doom) - using chezmoi template variables
+(setq org-directory (expand-file-name "!org" {{ .primary_cloud | quote }}))
+
+;; =====================================================================
+;; PROJECT MANAGEMENT & FILE NAVIGATION
+;; =====================================================================
+
+;; Treemacs - file tree sidebar
+(use-package treemacs
+  :ensure t
+  :defer t
+  :config
+  (setq treemacs-width 30)
+  (setq treemacs-follow-mode t)
+  (setq treemacs-filewatch-mode t)
+  (setq treemacs-fringe-indicator-mode 'always)
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t))
+
+;; Treemacs projectile integration
+(use-package treemacs-projectile
+  :ensure t
+  :after (treemacs projectile))
+
+;; Treemacs magit integration
+(use-package treemacs-magit
+  :ensure t
+  :after (treemacs magit))
+
+;; =====================================================================
+;; NOTE-TAKING & DENOTE
+;; =====================================================================
+
+;; Denote configuration - install and configure basic setup
+(use-package denote
+  :ensure t
+  :config
+  (setq denote-directory (expand-file-name "!org/denote" {{ .primary_cloud | quote }}))
+  (setq denote-known-keywords
+        '("projects" "areas" "resources" "archives"
+          "reference" "meeting" "finance" "work" "personal"
+          "idea" "draft" "completed" "journal"))
+  (setq denote-file-type 'org)
+  (setq denote-sort-keywords t))
+
+;; Denote Journal
+(use-package denote-journal
+  :ensure t
+  :after denote
+  :config
+  (setq denote-journal-directory (expand-file-name "journal" denote-directory))
+  (setq denote-journal-keyword "journal"))
+
+;; Denote Agenda integrationp
+(use-package denote-agenda
+  :ensure t
+  :after denote)
+
+;; Additional denote features (consult-notes for searching)
+(use-package consult-notes
+  :ensure t
+  :after consult)
+
+;; =====================================================================
+;; ORG-MODE CONFIGURATION
+;; =====================================================================
+
+;; Org configuration (exactly matching Doom setup)
+(setq org-agenda-files
+      (seq-filter (lambda (file)
+                    (not (string-match-p "/templates/" file)))
+                  (append (directory-files-recursively {{ .primary_cloud | quote }} "\\.org$")
+                          (directory-files-recursively {{ .workspace | quote }} "\\.org$")
+                          (directory-files-recursively {{ .workspace_extra | quote }} "\\.org$")
+                          ;; Include journal files in agenda
+                          (directory-files-recursively (expand-file-name "!org/denote/journal" {{ .primary_cloud | quote }}) "\\.org$"))))
+
+;; Archive configuration - use dedicated archive directory (matching Doom)
+(setq org-archive-location "archive/%s_archive::")
+(setq org-archive-save-context-info '(time file ltags itags todo category olpath))
+
+;; Org-attach configuration (matching Doom setup)
+(setq org-attach-id-dir (expand-file-name "!org/.attach/" {{ .primary_cloud | quote }}))
+(setq org-attach-dir-relative t)
+(setq org-attach-use-inheritance t)
+(setq org-attach-auto-tag "attach")
+(setq org-attach-store-link-p t)
+
+;; Create attachment directory if it doesn't exist
+(unless (file-exists-p org-attach-id-dir)
+  (make-directory org-attach-id-dir t))
+
+;; =====================================================================
+;; KEYBINDINGS
+;; =====================================================================
+
+;; Treemacs keybindings
+(global-set-key (kbd "C-c t") #'treemacs)
+
+;; Denote keybindings (using C-c n prefix to avoid conflicts)
+(global-set-key (kbd "C-c n n") #'denote)
+(global-set-key (kbd "C-c n l") #'denote-link)
+(global-set-key (kbd "C-c n r") #'denote-rename-file)
+(global-set-key (kbd "C-c n b") #'denote-backlinks)
+(global-set-key (kbd "C-c n d") #'denote-dired)
+(global-set-key (kbd "C-c n g") #'denote-grep)
+(global-set-key (kbd "C-c n s") #'consult-notes)
+(global-set-key (kbd "C-c n j") #'denote-journal-new-or-existing-entry)
+(global-set-key (kbd "C-c n t") #'my/insert-template)
+
+;; =====================================================================
+;; CUSTOM FUNCTIONS
+;; =====================================================================
+
+;; Template functions (basic versions)
+(defun my/insert-template ()
+  "Insert a basic template."
+  (interactive)
+  (message "Template insertion - add your templates here"))
+
+;; =====================================================================
+;; INITIALIZATION
+;; =====================================================================
+
+;; Message to confirm loading
+(message "Loaded personal configuration for Purcell Emacs")
+
+(provide 'init-local)
+;;; init-local.el ends here

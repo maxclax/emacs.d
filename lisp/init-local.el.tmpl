@@ -52,7 +52,7 @@
 ;; =====================================================================
 
 ;; Directory settings (same as Doom) - using chezmoi template variables
-(setq org-directory (expand-file-name "!org" {{ .primary_cloud | quote }}))
+(setq org-directory (expand-file-name "org" {{ .managed_sync | quote }}))
 
 ;; =====================================================================
 ;; PROJECT MANAGEMENT & FILE NAVIGATION
@@ -88,7 +88,7 @@
 (use-package denote
   :ensure t
   :config
-  (setq denote-directory (expand-file-name "!org/denote" {{ .primary_cloud | quote }}))
+  (setq denote-directory (expand-file-name "org/denote" {{ .managed_sync | quote }}))
   (setq denote-known-keywords
         '("projects" "areas" "resources" "archives"
           "reference" "meeting" "finance" "work" "personal"
@@ -122,18 +122,18 @@
 (setq org-agenda-files
       (seq-filter (lambda (file)
                     (not (string-match-p "/templates/" file)))
-                  (append (directory-files-recursively {{ .primary_cloud | quote }} "\\.org$")
+                  (append (directory-files-recursively {{ .managed_sync | quote }} "\\.org$")
                           (directory-files-recursively {{ .workspace | quote }} "\\.org$")
                           (directory-files-recursively {{ .workspace_extra | quote }} "\\.org$")
                           ;; Include journal files in agenda
-                          (directory-files-recursively (expand-file-name "!org/denote/journal" {{ .primary_cloud | quote }}) "\\.org$"))))
+                          (directory-files-recursively (expand-file-name "org/denote/journal" {{ .managed_sync | quote }}) "\\.org$"))))
 
 ;; Archive configuration - use dedicated archive directory (matching Doom)
 (setq org-archive-location "archive/%s_archive::")
 (setq org-archive-save-context-info '(time file ltags itags todo category olpath))
 
 ;; Org-attach configuration (matching Doom setup)
-(setq org-attach-id-dir (expand-file-name "!org/.attach/" {{ .primary_cloud | quote }}))
+(setq org-attach-id-dir (expand-file-name "org/.attach/" {{ .managed_sync | quote }}))
 (setq org-attach-dir-relative t)
 (setq org-attach-use-inheritance t)
 (setq org-attach-auto-tag "attach")

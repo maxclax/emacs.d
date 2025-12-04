@@ -55,32 +55,6 @@
 (setq org-directory (expand-file-name "org" {{ .managed_sync | quote }}))
 
 ;; =====================================================================
-;; PROJECT MANAGEMENT & FILE NAVIGATION
-;; =====================================================================
-
-;; Treemacs - file tree sidebar
-(use-package treemacs
-  :ensure t
-  :defer t
-  :config
-  (setq treemacs-width 30)
-  (setq treemacs-follow-mode t)
-  (setq treemacs-filewatch-mode t)
-  (setq treemacs-fringe-indicator-mode 'always)
-  (treemacs-follow-mode t)
-  (treemacs-filewatch-mode t))
-
-;; Treemacs projectile integration
-(use-package treemacs-projectile
-  :ensure t
-  :after (treemacs projectile))
-
-;; Treemacs magit integration
-(use-package treemacs-magit
-  :ensure t
-  :after (treemacs magit))
-
-;; =====================================================================
 ;; NOTE-TAKING & DENOTE
 ;; =====================================================================
 
@@ -147,11 +121,9 @@
 ;; KEYBINDINGS
 ;; =====================================================================
 
-;; Treemacs keybindings
-(global-set-key (kbd "C-c t") #'treemacs)
-
 ;; Denote keybindings (using C-c n prefix to avoid conflicts)
 (global-set-key (kbd "C-c n n") #'denote)
+(global-set-key (kbd "C-c n c") #'denote-link-after-creating)
 (global-set-key (kbd "C-c n l") #'denote-link)
 (global-set-key (kbd "C-c n r") #'denote-rename-file)
 (global-set-key (kbd "C-c n b") #'denote-backlinks)

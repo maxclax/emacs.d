@@ -62,7 +62,7 @@
 (use-package denote
   :ensure t
   :config
-  (setq denote-directory (expand-file-name "org/denote" {{ .managed_sync | quote }}))
+  (setq denote-directory (expand-file-name "org" {{ .managed_sync | quote }}))
   (setq denote-known-keywords
         '("projects" "areas" "resources" "archives"
           "reference" "meeting" "finance" "work" "personal"

@@ -96,11 +96,11 @@
 (setq org-agenda-files
       (seq-filter (lambda (file)
                     (not (string-match-p "/templates/" file)))
-                  (append (directory-files-recursively {{ .managed_sync | quote }} "\\.org$")
-                          (directory-files-recursively {{ .workspace | quote }} "\\.org$")
-                          (directory-files-recursively {{ .workspace_extra | quote }} "\\.org$")
+                  (append (directory-files-recursively (expand-file-name "org" {{ .managed_sync | quote }}) "\\.org$")
+                          (when (file-exists-p (expand-file-name "org" {{ .workspace_extra | quote }}))
+                            (directory-files-recursively (expand-file-name "org" {{ .workspace_extra | quote }}) "\\.org$"))
                           ;; Include journal files in agenda
-                          (directory-files-recursively (expand-file-name "org/denote/journal" {{ .managed_sync | quote }}) "\\.org$"))))
+                          (directory-files-recursively (expand-file-name "org/journal" {{ .managed_sync | quote }}) "\\.org$"))))
 
 ;; Archive configuration - use dedicated archive directory (matching Doom)
 (setq org-archive-location "archive/%s_archive::")
